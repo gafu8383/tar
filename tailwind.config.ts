@@ -61,29 +61,23 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				},
-				discord: {
-					blurple: 'hsl(var(--discord-blurple))',
-					dark: 'hsl(var(--discord-dark))',
-					darker: 'hsl(var(--discord-darker))',
-					light: 'hsl(var(--discord-light))',
-					muted: 'hsl(var(--discord-muted))',
-					green: 'hsl(var(--discord-green))',
-					red: 'hsl(var(--discord-red))'
 				}
-			},
-			backgroundImage: {
-				'gradient-discord': 'var(--gradient-discord)',
-				'gradient-background': 'var(--gradient-background)'
-			},
-			transitionTimingFunction: {
-				'smooth': 'var(--transition-smooth)',
-				'bounce': 'var(--transition-bounce)'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
+			},
+			backgroundImage: {
+				'gradient-discord': 'var(--gradient-discord)',
+				'gradient-subtle': 'var(--gradient-subtle)'
+			},
+			boxShadow: {
+				'discord': 'var(--shadow-discord)',
+				'card': 'var(--shadow-card)'
+			},
+			transitionProperty: {
+				'smooth': 'var(--transition-smooth)'
 			},
 			keyframes: {
 				'accordion-down': {
