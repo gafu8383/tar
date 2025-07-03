@@ -104,5 +104,7 @@ export default {
 			}
 		}
 	},
-	plugins: [import("tailwindcss-animate")],
+	import tailwindcssAnimate from "tailwindcss-animate";
+
+plugins: [tailwindcssAnimate]
 } satisfies Config;
